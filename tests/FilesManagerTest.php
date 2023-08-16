@@ -17,9 +17,9 @@ class FilesManagerTest extends TestCase
     {
         $this->tmpAdapter = new LocalFilesystemAdapter(__DIR__.'/tmp');
      
-        $this->mountManager = new MountManager (new BaseMountManager(array(
+        $this->mountManager = new MountManager ([
             'tmp' => new FileSystem($this->tmpAdapter)
-        )));
+        ]);
 
         $this->testFilePath = __DIR__.'/tmp/testfile.txt';
         $this->testBucketFilePath = 'tmp://testfile.txt';

@@ -2,63 +2,10 @@
 
 namespace Cibrian\FlysystemV1Bridge;
 
+use Cibrian\FlysystemV1Bridge\Abstracts\MountManagerBridgeAbstracts;
 use League\Flysystem\MountManager as BaseMountManager;
 
-class MountManager {
-
-    private $mountManager;
-
-    public function __construct(BaseMountManager $mountManager) {
-        $this->mountManager = $mountManager;
-    }
-
-    public function listContents(string $location, bool $deep = false) : array {
-        $files = $this->mountManager->listContents($location, $deep);
-        $contents = [];
-
-        foreach ($files as $file) {
-            if ($file instanceof \League\Flysystem\FileAttributes) {
-                $file = new FileAttributes(
-                    $file->path(),
-                    $file->fileSize(),
-                    $file->visibility(),
-                    $file->lastModified(),
-                    $file->mimeType(),
-                    $file->extraMetadata()
-                );
-            } else{
-                $file = new DirectoryAttributes(
-                    $file->path(),
-                    $file->visibility(),
-                    $file->lastModified(),
-                    $file->extraMetadata()
-                );
-            }
-            $contents[] = $file->toArray();
-        }
-        return $contents;
-    }
-
-    public function has(string $location): bool {
-        return $this->mountManager->has($location);
-    }
-
-    public function copy(string $from, string $to, array $config = []) : bool {
-        try {
-            $this->mountManager->copy($from, $to, $config);
-        } catch (\Exception $e) {
-            return false;
-        }
-        return true;
-    }
-
-    public function read(string $path) : string|false {
-        try {
-            return $this->mountManager->read($path);
-        } catch (\Exception $e) {
-            return false;
-        }
-    }
+class MountManager extends MountManagerBridgeAbstracts {
 
     public function getSize(string $path) : int|false {
         try {
