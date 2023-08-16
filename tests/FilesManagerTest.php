@@ -3,7 +3,6 @@
 use PHPUnit\Framework\TestCase;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use League\Flysystem\Filesystem;
-use League\Flysystem\MountManager as BaseMountManager;
 use Cibrian\FlysystemV1Bridge\MountManager;
 
 class FilesManagerTest extends TestCase

@@ -87,7 +87,7 @@ abstract class MountManagerBridgeAbstracts implements FilesystemOperatorBridgeIn
         try {
             return $filesystem->read($path);
         } catch (UnableToReadFile $exception) {
-            throw UnableToReadFile::fromLocation($location, $exception->reason(), $exception);
+            return false;
         }
     }
 
@@ -190,17 +190,19 @@ abstract class MountManagerBridgeAbstracts implements FilesystemOperatorBridgeIn
         }
     }
 
-//    public function write(string $location, string $contents, array $config = []): void
-//    {
-//        /** @var FilesystemOperator $filesystem */
-//        [$filesystem, $path] = $this->determineFilesystemAndPath($location);
-//
-//        try {
-//            $filesystem->write($path, $contents, $config);
-//        } catch (UnableToWriteFile $exception) {
-//            throw UnableToWriteFile::atLocation($location, $exception->reason(), $exception);
-//        }
-//    }
+   public function write(string $location, string $contents, array $config = []): bool
+   {
+       /** @var FilesystemOperator $filesystem */
+       [$filesystem, $path] = $this->determineFilesystemAndPath($location);
+
+       try {
+           $filesystem->write($path, $contents, $config);
+       } catch (UnableToWriteFile $exception) {
+           return false;
+       }
+
+       return true;
+   }
 
     public function writeStream(string $location, $contents, array $config = []): void
     {
@@ -225,7 +227,6 @@ abstract class MountManagerBridgeAbstracts implements FilesystemOperatorBridgeIn
             $filesystem->delete($path);
             return true;
         } catch (UnableToDeleteFile $exception) {
-//            throw UnableToDeleteFile::atLocation($location, $exception->reason(), $exception);
             return false;
         }
     }
@@ -254,21 +255,28 @@ abstract class MountManagerBridgeAbstracts implements FilesystemOperatorBridgeIn
         }
     }
 
-//    public function move(string $source, string $destination, array $config = []): void
-//    {
-//        /** @var FilesystemOperator $sourceFilesystem */
-//        /* @var FilesystemOperator $destinationFilesystem */
-//        [$sourceFilesystem, $sourcePath] = $this->determineFilesystemAndPath($source);
-//        [$destinationFilesystem, $destinationPath] = $this->determineFilesystemAndPath($destination);
-//
-//        $sourceFilesystem === $destinationFilesystem ? $this->moveInTheSameFilesystem(
-//            $sourceFilesystem,
-//            $sourcePath,
-//            $destinationPath,
-//            $source,
-//            $destination
-//        ) : $this->moveAcrossFilesystems($source, $destination, $config);
-//    }
+   public function move(string $source, string $destination, array $config = []): bool
+   {
+       /** @var FilesystemOperator $sourceFilesystem */
+       /* @var FilesystemOperator $destinationFilesystem */
+       try {
+           [$sourceFilesystem, $sourcePath] = $this->determineFilesystemAndPath($source);
+           [$destinationFilesystem, $destinationPath] = $this->determineFilesystemAndPath($destination);
+
+           $sourceFilesystem === $destinationFilesystem ? $this->moveInTheSameFilesystem(
+               $sourceFilesystem,
+               $sourcePath,
+               $destinationPath,
+               $source,
+               $destination
+           ) : $this->moveAcrossFilesystems($source, $destination, $config);
+           
+       } catch (Exception $e) {
+           return false;
+       }
+
+       return true;
+   }
 
     /**
      * @param string $source
@@ -367,7 +375,7 @@ abstract class MountManagerBridgeAbstracts implements FilesystemOperatorBridgeIn
         }
     }
 
-    private function mountFilesystem(string $key, FilesystemOperator $filesystem): void
+    public function mountFilesystem(string $key, FilesystemOperator $filesystem): void
     {
         $this->filesystems[$key] = $filesystem;
     }
