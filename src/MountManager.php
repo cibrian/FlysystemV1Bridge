@@ -47,7 +47,6 @@ class MountManager {
         try {
             $this->mountManager->copy($from, $to, $config);
         } catch (\Exception $e) {
-            var_dump($e);
             return false;
         }
         return true;
